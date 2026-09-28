@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { fetchShipments, fetchDashboardStats, fetchChartData } from '../api/mockData';
+import { fetchShipments, fetchDashboardStats, fetchChartData, Shipment } from '../api/mockData';
 import { DataTable } from './DataTable';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Package, Truck, CheckCircle, Search, Download } from 'lucide-react';
@@ -10,17 +10,19 @@ export function Dashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   
   const page = parseInt(searchParams.get('page') || '1', 10);
-  const statusFilter = searchParams.get('status') || 'All';
+  const statusFilter = searchParams.get('status') || 'Todos';
   const searchQuery = searchParams.get('search') || '';
+  const sortField = (searchParams.get('sortField') || '') as keyof Shipment | '';
+  const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
 
   const [searchInput, setSearchInput] = useState(searchQuery);
 
-  const pageSize = 100; // Using 100 to show off virtualization
+  const pageSize = 100;
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['shipments', { page, statusFilter, searchQuery }],
-    queryFn: () => fetchShipments({ page, pageSize, status: statusFilter, search: searchQuery }),
-    placeholderData: (prev) => prev, // keeps previous data on screen while fetching new
+    queryKey: ['shipments', { page, statusFilter, searchQuery, sortField, sortOrder }],
+    queryFn: () => fetchShipments({ page, pageSize, status: statusFilter, search: searchQuery, sortField, sortOrder }),
+    placeholderData: (prev) => prev,
   });
 
   const { data: stats } = useQuery({
@@ -54,9 +56,17 @@ export function Dashboard() {
     setSearchParams(params);
   };
 
+  const handleSort = (field: keyof Shipment) => {
+    if (sortField === field) {
+      updateParams({ sortOrder: sortOrder === 'asc' ? 'desc' : 'asc' });
+    } else {
+      updateParams({ sortField: field, sortOrder: 'asc' });
+    }
+  };
+
   const handleExport = () => {
     const csvContent = "data:text/csv;charset=utf-8," 
-      + "ID,Tracking,Status,Origin,Destination,Value\n"
+      + "ID,Rastreio,Status,Origem,Destino,Valor\n"
       + data?.data.map(e => `${e.id},${e.trackingNumber},${e.status},"${e.origin}","${e.destination}",${e.value}`).join("\n");
     
     const encodedUri = encodeURI(csvContent);
@@ -173,7 +183,6 @@ export function Dashboard() {
       </div>
 
       <div className="space-y-4">
-        {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 items-center">
           <div className="relative w-full sm:w-96">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
@@ -191,11 +200,11 @@ export function Dashboard() {
             onChange={(e) => updateParams({ status: e.target.value, page: '1' })}
             className="w-full sm:w-48 px-4 py-2 border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
-            <option value="All">Todos os Status</option>
-            <option value="Pending">Pendente</option>
-            <option value="In Transit">Em Trânsito</option>
-            <option value="Delivered">Entregue</option>
-            <option value="Cancelled">Cancelado</option>
+            <option value="Todos">Todos os Status</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Em Trânsito">Em Trânsito</option>
+            <option value="Entregue">Entregue</option>
+            <option value="Cancelado">Cancelado</option>
           </select>
         </div>
 
@@ -208,6 +217,9 @@ export function Dashboard() {
             pageSize={pageSize}
             isLoading={isLoading || isFetching}
             onPageChange={(p) => updateParams({ page: p.toString() })}
+            sortField={sortField}
+            sortOrder={sortOrder}
+            onSort={handleSort}
           />
         </div>
       </div>

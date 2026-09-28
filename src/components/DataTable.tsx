@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { Shipment } from '../api/mockData';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface DataTableProps {
   data: Shipment[];
@@ -11,6 +11,9 @@ interface DataTableProps {
   pageSize: number;
   isLoading: boolean;
   onPageChange: (page: number) => void;
+  sortField: keyof Shipment | '';
+  sortOrder: 'asc' | 'desc';
+  onSort: (field: keyof Shipment) => void;
 }
 
 export function DataTable({
@@ -21,6 +24,9 @@ export function DataTable({
   pageSize,
   isLoading,
   onPageChange,
+  sortField,
+  sortOrder,
+  onSort,
 }: DataTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +36,20 @@ export function DataTable({
     estimateSize: () => 48,
     overscan: 10,
   });
+
+  const renderSortIcon = (field: keyof Shipment) => {
+    if (sortField !== field) return <ArrowUpDown size={14} className="opacity-40" />;
+    return sortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />;
+  };
+
+  const columns: { label: string; field: keyof Shipment; align?: 'right' }[] = [
+    { label: 'ID', field: 'id' },
+    { label: 'Tracking', field: 'trackingNumber' },
+    { label: 'Status', field: 'status' },
+    { label: 'Origem', field: 'origin' },
+    { label: 'Destino', field: 'destination' },
+    { label: 'Valor', field: 'value', align: 'right' },
+  ];
 
   return (
     <div className="flex flex-col h-full bg-card text-card-foreground border rounded-lg shadow-sm">
@@ -41,12 +61,17 @@ export function DataTable({
         <table className="w-full text-sm text-left relative">
           <thead className="text-xs text-muted-foreground uppercase bg-muted/50 sticky top-0 z-10">
             <tr>
-              <th className="px-4 py-3 font-medium">ID</th>
-              <th className="px-4 py-3 font-medium">Tracking</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Origem</th>
-              <th className="px-4 py-3 font-medium">Destino</th>
-              <th className="px-4 py-3 font-medium text-right">Valor</th>
+              {columns.map((col) => (
+                <th key={col.field} className={`px-4 py-3 font-medium ${col.align === 'right' ? 'text-right' : ''}`}>
+                  <button 
+                    onClick={() => onSort(col.field)}
+                    className={`flex items-center gap-1 hover:text-foreground transition-colors ${col.align === 'right' ? 'justify-end w-full' : ''}`}
+                  >
+                    {col.label}
+                    {renderSortIcon(col.field)}
+                  </button>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody
@@ -140,4 +165,3 @@ export function DataTable({
     </div>
   );
 }
-

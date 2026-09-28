@@ -36,6 +36,10 @@ Sistemas B2B e aplicações corporativas frequentemente lidam com volumes massiv
 **O Desafio:** A cada tecla pressionada no input de busca de "Tracking ou Origem", o `setSearchParams` alterava a URL, forçando um *refetch* instantâneo na API, levando ao encavalameno de requisições.
 **A Solução:** Implementação de um efeito **Debounce**. Utilizei um estado local para o `<input>` (`searchInput`) que, após 500ms de inatividade via `setTimeout`, aplica o valor aos Query Parameters, desencadeando a requisição final da API, otimizando muito o tráfego de rede e a resposta de UI.
 
+### 3. (Bônus) Ordenação Dinâmica Server-side (Sorting)
+**O Desafio:** Tabelas complexas precisam de ordenação (`sort`), mas fazê-lo localmente no client-side apenas ordenaria a página atual (ex: os 100 itens da tela).
+**A Solução:** Modifiquei o `DataTable` para receber cliques nos *headers* e injetar `sortField` e `sortOrder` na URL. A "API" escuta essas chaves e faz a ordenação do *array* principal no backend antes de paginar, garantindo que o usuário veja o registro de "Valor" mais alto de todo o banco de dados, e não só da página 1. O cache do React Query lida magicamente com essas novas chaves de query.
+
 ## 📊 Métricas e Performance
 
 Abaixo estão os benchmarks alvo deste projeto, validando as técnicas aplicadas:
