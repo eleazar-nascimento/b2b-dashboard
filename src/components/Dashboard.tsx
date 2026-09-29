@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { fetchShipments, fetchDashboardStats, fetchChartData, type Shipment } from '../api/mockData';
+import { fetchShipments, fetchDashboardStats, type Shipment } from '../api/mockData';
 import { DataTable } from './DataTable';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Package, Truck, CheckCircle, Search, Download, ChevronDown, Filter } from 'lucide-react';
 
 export function Dashboard() {
@@ -29,10 +28,6 @@ export function Dashboard() {
     queryFn: fetchDashboardStats,
   });
 
-  const { data: chartData } = useQuery({
-    queryKey: ['chartData'],
-    queryFn: fetchChartData,
-  });
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -78,7 +73,6 @@ export function Dashboard() {
     document.body.removeChild(link);
   };
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   return (
     <div className="flex px-4 md:px-8 max-w-[1600px] mx-auto gap-8">
