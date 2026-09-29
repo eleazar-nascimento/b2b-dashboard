@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { fetchShipments, fetchDashboardStats, fetchChartData, Shipment } from '../api/mockData';
+import { fetchShipments, fetchDashboardStats, fetchChartData, type Shipment } from '../api/mockData';
 import { DataTable } from './DataTable';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Package, Truck, CheckCircle, Search, Download } from 'lucide-react';
