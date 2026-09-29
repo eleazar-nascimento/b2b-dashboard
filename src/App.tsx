@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
 import { Dashboard } from './components/Dashboard';
+import { NotificationModal } from './components/NotificationModal';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -12,6 +14,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
@@ -34,6 +37,7 @@ function App() {
               </div>
               <button 
                 onClick={() => alert('Você não tem novas notificações no momento.')}
+                onClick={() => setIsNotificationsOpen(true)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-full shadow-[0_4px_20px_rgb(0,0,0,0.03)] text-sm font-medium text-slate-600 hover:text-indigo-500 active:scale-95 transition-all cursor-pointer"
               >
                 <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
@@ -48,6 +52,11 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
             </Routes>
           </main>
+
+          <NotificationModal 
+            isOpen={isNotificationsOpen} 
+            onClose={() => setIsNotificationsOpen(false)} 
+          />
         </div>
       </BrowserRouter>
     </QueryClientProvider>
