@@ -14,13 +14,12 @@ export function Dashboard() {
   const searchQuery = searchParams.get('search') || '';
   const sortField = (searchParams.get('sortField') || '') as keyof Shipment | '';
   const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
+  const pageSize = Number(searchParams.get('pageSize')) || 100;
 
   const [searchInput, setSearchInput] = useState(searchQuery);
 
-  const pageSize = 100;
-
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['shipments', { page, statusFilter, searchQuery, sortField, sortOrder }],
+    queryKey: ['shipments', { page, pageSize, statusFilter, searchQuery, sortField, sortOrder }],
     queryFn: () => fetchShipments({ page, pageSize, status: statusFilter, search: searchQuery, sortField, sortOrder }),
     placeholderData: (prev) => prev,
   });
@@ -225,6 +224,7 @@ export function Dashboard() {
             pageSize={pageSize}
             isLoading={isLoading || isFetching}
             onPageChange={(p) => updateParams({ page: p.toString() })}
+            onPageSizeChange={(size) => updateParams({ pageSize: size.toString(), page: '1' })}
             sortField={sortField}
             sortOrder={sortOrder}
             onSort={handleSort}

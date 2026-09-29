@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { Shipment } from '../api/mockData';
-import { ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown } from 'lucide-react';
 
 interface DataTableProps {
   data: Shipment[];
@@ -11,6 +11,7 @@ interface DataTableProps {
   pageSize: number;
   isLoading: boolean;
   onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
   sortField: keyof Shipment | '';
   sortOrder: 'asc' | 'desc';
   onSort: (field: keyof Shipment) => void;
@@ -24,6 +25,7 @@ export function DataTable({
   pageSize,
   isLoading,
   onPageChange,
+  onPageSizeChange,
   sortField,
   sortOrder,
   onSort,
@@ -150,11 +152,30 @@ export function DataTable({
         </table>
       </div>
 
-      <div className="flex items-center justify-between px-6 py-4 bg-muted/10 border-t">
-        <div className="text-sm text-muted-foreground">
-          Mostrando <span className="font-semibold text-foreground">{(currentPage - 1) * pageSize + 1}</span> até{' '}
-          <span className="font-semibold text-foreground">{Math.min(currentPage * pageSize, totalCount)}</span> de{' '}
-          <span className="font-semibold text-foreground">{totalCount}</span> registros
+      <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 bg-muted/10 border-t gap-4">
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-muted-foreground hidden sm:block">
+            Mostrando <span className="font-semibold text-foreground">{totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1}</span> até{' '}
+            <span className="font-semibold text-foreground">{Math.min(currentPage * pageSize, totalCount)}</span> de{' '}
+            <span className="font-semibold text-foreground">{totalCount}</span> registros
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Itens por página:</span>
+            <div className="relative group">
+              <select
+                value={pageSize}
+                onChange={(e) => onPageSizeChange(Number(e.target.value))}
+                className="appearance-none bg-background border border-muted-foreground/20 rounded-md pl-3 pr-8 py-1.5 text-sm font-medium hover:border-muted-foreground/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all cursor-pointer shadow-sm"
+              >
+                {[20, 50, 100, 200, 500].map(size => (
+                  <option key={size} value={size}>{size}</option>
+                ))}
+              </select>
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground group-hover:text-foreground transition-colors">
+                <ChevronDown size={14} />
+              </div>
+            </div>
+          </div>
         </div>
         
         <div className="flex items-center space-x-2">
