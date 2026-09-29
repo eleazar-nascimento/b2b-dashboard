@@ -33,13 +33,24 @@ export function DataTable({
   const rowVirtualizer = useVirtualizer({
     count: data.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 48,
+    estimateSize: () => 56, // Increased for more padding
     overscan: 10,
   });
 
   const renderSortIcon = (field: keyof Shipment) => {
-    if (sortField !== field) return <ArrowUpDown size={14} className="opacity-40" />;
-    return sortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />;
+    const isActive = sortField === field;
+    return (
+      <div className="relative flex items-center justify-center w-4 h-4 ml-1 overflow-hidden">
+        <ArrowUpDown 
+          size={14} 
+          className={`absolute transition-all duration-300 ease-in-out ${isActive ? 'opacity-0 scale-50' : 'opacity-40 scale-100 group-hover:opacity-100'}`} 
+        />
+        <ArrowUp 
+          size={14} 
+          className={`absolute text-primary transition-all duration-300 ease-in-out ${!isActive ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'} ${sortOrder === 'desc' ? 'rotate-180' : 'rotate-0'}`} 
+        />
+      </div>
+    );
   };
 
   const columns: { label: string; field: keyof Shipment; align?: 'right' }[] = [
@@ -51,21 +62,23 @@ export function DataTable({
     { label: 'Valor', field: 'value', align: 'right' },
   ];
 
+  const gridColsClass = "grid grid-cols-[110px_160px_140px_minmax(200px,1fr)_minmax(200px,1fr)_140px] w-full";
+
   return (
-    <div className="flex flex-col h-full bg-card text-card-foreground border rounded-lg shadow-sm">
+    <div className="flex flex-col h-full bg-card text-card-foreground border rounded-xl shadow-sm overflow-hidden">
       <div 
         ref={parentRef} 
-        className="flex-1 overflow-auto relative"
+        className="flex-1 overflow-auto relative custom-scrollbar"
         style={{ minHeight: '400px' }}
       >
-        <table className="w-full text-sm text-left relative">
-          <thead className="text-xs text-muted-foreground uppercase bg-muted/50 sticky top-0 z-10">
-            <tr>
+        <table className="w-full text-sm text-left block">
+          <thead className="text-xs text-muted-foreground uppercase bg-muted/40 sticky top-0 z-20 block w-full border-b shadow-sm backdrop-blur-sm">
+            <tr className={gridColsClass}>
               {columns.map((col) => (
-                <th key={col.field} className={`px-4 py-3 font-medium ${col.align === 'right' ? 'text-right' : ''}`}>
+                <th key={col.field} className="px-5 py-4 font-semibold tracking-wider">
                   <button 
                     onClick={() => onSort(col.field)}
-                    className={`flex items-center gap-1 hover:text-foreground transition-colors ${col.align === 'right' ? 'justify-end w-full' : ''}`}
+                    className={`flex items-center group hover:text-foreground transition-colors w-full ${col.align === 'right' ? 'justify-end' : ''}`}
                   >
                     {col.label}
                     {renderSortIcon(col.field)}
@@ -75,27 +88,29 @@ export function DataTable({
             </tr>
           </thead>
           <tbody
+            className="block relative w-full"
             style={{
               height: isLoading ? 'auto' : `${rowVirtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative',
             }}
           >
             {isLoading ? (
               Array.from({ length: 10 }).map((_, i) => (
-                <tr key={`skeleton-${i}`} className="border-b">
-                  <td className="px-4 py-3"><div className="h-4 bg-muted rounded animate-pulse w-16"></div></td>
-                  <td className="px-4 py-3"><div className="h-4 bg-muted rounded animate-pulse w-24"></div></td>
-                  <td className="px-4 py-3"><div className="h-6 bg-muted rounded-full animate-pulse w-20"></div></td>
-                  <td className="px-4 py-3"><div className="h-4 bg-muted rounded animate-pulse w-32"></div></td>
-                  <td className="px-4 py-3"><div className="h-4 bg-muted rounded animate-pulse w-32"></div></td>
-                  <td className="px-4 py-3 flex justify-end"><div className="h-4 bg-muted rounded animate-pulse w-20"></div></td>
+                <tr key={`skeleton-${i}`} className={`${gridColsClass} items-center border-b`}>
+                  <td className="px-5 py-4"><div className="h-4 bg-muted/60 rounded animate-pulse w-16"></div></td>
+                  <td className="px-5 py-4"><div className="h-4 bg-muted/60 rounded animate-pulse w-24"></div></td>
+                  <td className="px-5 py-4"><div className="h-6 bg-muted/60 rounded-full animate-pulse w-24"></div></td>
+                  <td className="px-5 py-4"><div className="h-4 bg-muted/60 rounded animate-pulse w-32"></div></td>
+                  <td className="px-5 py-4"><div className="h-4 bg-muted/60 rounded animate-pulse w-32"></div></td>
+                  <td className="px-5 py-4 flex justify-end"><div className="h-4 bg-muted/60 rounded animate-pulse w-20"></div></td>
                 </tr>
               ))
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-10 text-muted-foreground">
-                  Nenhum registro encontrado.
+                <td colSpan={6} className="text-center py-12 text-muted-foreground flex flex-col items-center justify-center w-full">
+                  <div className="bg-muted/20 p-4 rounded-full mb-3">
+                    <ArrowUpDown size={24} className="opacity-20" />
+                  </div>
+                  <p>Nenhum registro encontrado.</p>
                 </td>
               </tr>
             ) : (
@@ -104,27 +119,27 @@ export function DataTable({
                 return (
                   <tr
                     key={shipment.id}
-                    className="border-b transition-colors hover:bg-muted/50 absolute w-full"
+                    className={`${gridColsClass} items-center absolute border-b border-border/50 transition-all hover:bg-muted/30 group`}
                     style={{
                       height: `${virtualRow.size}px`,
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                   >
-                    <td className="px-4 py-3 font-medium">{shipment.id}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{shipment.trackingNumber}</td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        shipment.status === 'Entregue' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                        shipment.status === 'Em Trânsito' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                        shipment.status === 'Cancelado' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                        'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                    <td className="px-5 py-3 font-semibold text-foreground/90">{shipment.id}</td>
+                    <td className="px-5 py-3 text-muted-foreground group-hover:text-foreground/80 transition-colors font-medium tracking-wide">{shipment.trackingNumber}</td>
+                    <td className="px-5 py-3">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold shadow-sm border uppercase tracking-wider ${
+                        shipment.status === 'Entregue' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' :
+                        shipment.status === 'Em Trânsito' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20' :
+                        shipment.status === 'Cancelado' ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20' :
+                        'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
                       }`}>
                         {shipment.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3">{shipment.origin}</td>
-                    <td className="px-4 py-3">{shipment.destination}</td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-5 py-3 truncate text-foreground/80">{shipment.origin}</td>
+                    <td className="px-5 py-3 truncate text-foreground/80">{shipment.destination}</td>
+                    <td className="px-5 py-3 text-right font-medium">
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(shipment.value)}
                     </td>
                   </tr>
@@ -135,28 +150,28 @@ export function DataTable({
         </table>
       </div>
 
-      <div className="flex items-center justify-between px-4 py-3 border-t">
+      <div className="flex items-center justify-between px-6 py-4 bg-muted/10 border-t">
         <div className="text-sm text-muted-foreground">
-          Mostrando <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> até{' '}
-          <span className="font-medium">{Math.min(currentPage * pageSize, totalCount)}</span> de{' '}
-          <span className="font-medium">{totalCount}</span> registros
+          Mostrando <span className="font-semibold text-foreground">{(currentPage - 1) * pageSize + 1}</span> até{' '}
+          <span className="font-semibold text-foreground">{Math.min(currentPage * pageSize, totalCount)}</span> de{' '}
+          <span className="font-semibold text-foreground">{totalCount}</span> registros
         </div>
         
         <div className="flex items-center space-x-2">
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1 || isLoading}
-            className="p-2 rounded-md border bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-2.5 rounded-lg border bg-background hover:bg-muted hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <ChevronLeft size={16} />
           </button>
-          <span className="text-sm font-medium px-2">
-            Página {currentPage} de {totalPages}
+          <span className="text-sm font-medium px-4 text-muted-foreground">
+            Página <span className="text-foreground">{currentPage}</span> de <span className="text-foreground">{totalPages}</span>
           </span>
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages || isLoading}
-            className="p-2 rounded-md border bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-2.5 rounded-lg border bg-background hover:bg-muted hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <ChevronRight size={16} />
           </button>

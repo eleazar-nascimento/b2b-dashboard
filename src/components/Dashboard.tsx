@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchShipments, fetchDashboardStats, fetchChartData, type Shipment } from '../api/mockData';
 import { DataTable } from './DataTable';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Package, Truck, CheckCircle, Search, Download } from 'lucide-react';
+import { Package, Truck, CheckCircle, Search, Download, ChevronDown, Filter } from 'lucide-react';
 
 export function Dashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -183,29 +183,37 @@ export function Dashboard() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4 items-center">
-          <div className="relative w-full sm:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+        <div className="flex flex-col sm:flex-row gap-4 items-center bg-card p-4 rounded-xl border shadow-sm">
+          <div className="relative w-full sm:w-[400px] group">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={18} />
             <input
               type="text"
               placeholder="Buscar por ID, rastreio, origem..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full pl-11 pr-4 py-2.5 border border-muted-foreground/20 rounded-lg bg-background/50 hover:bg-background focus:bg-background hover:border-muted-foreground/40 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all shadow-sm"
             />
           </div>
           
-          <select
-            value={statusFilter}
-            onChange={(e) => updateParams({ status: e.target.value, page: '1' })}
-            className="w-full sm:w-48 px-4 py-2 border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
-          >
-            <option value="Todos">Todos os Status</option>
-            <option value="Pendente">Pendente</option>
-            <option value="Em Trânsito">Em Trânsito</option>
-            <option value="Entregue">Entregue</option>
-            <option value="Cancelado">Cancelado</option>
-          </select>
+          <div className="relative w-full sm:w-56 group">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
+              <Filter size={18} />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => updateParams({ status: e.target.value, page: '1' })}
+              className="w-full pl-11 pr-10 py-2.5 border border-muted-foreground/20 rounded-lg bg-background/50 hover:bg-background focus:bg-background hover:border-muted-foreground/40 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer shadow-sm font-medium"
+            >
+              <option value="Todos">Todos os Status</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Em Trânsito">Em Trânsito</option>
+              <option value="Entregue">Entregue</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground group-hover:text-foreground transition-colors">
+              <ChevronDown size={16} />
+            </div>
+          </div>
         </div>
 
         <div className="h-[600px]">
