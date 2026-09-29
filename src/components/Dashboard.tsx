@@ -64,9 +64,10 @@ export function Dashboard() {
   };
 
   const handleExport = () => {
+    if (!data?.data) return;
     const csvContent = "data:text/csv;charset=utf-8," 
       + "ID,Rastreio,Status,Origem,Destino,Valor\n"
-      + data?.data.map(e => `${e.id},${e.trackingNumber},${e.status},"${e.origin}","${e.destination}",${e.value}`).join("\n");
+      + data.data.map(e => `${e.id},${e.trackingNumber},${e.status},"${e.origin}","${e.destination}",${e.value}`).join("\n");
     
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -80,155 +81,144 @@ export function Dashboard() {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   return (
-    <div className="p-6 max-w-[1600px] mx-auto space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard Logístico</h1>
-          <p className="text-muted-foreground">Acompanhe remessas, status e métricas financeiras.</p>
+    <div className="flex px-4 md:px-8 max-w-[1600px] mx-auto gap-8">
+      {/* Sidebar Layout */}
+      <aside className="hidden md:flex flex-col gap-6 w-24 pt-4">
+        <div className="flex flex-col items-center gap-4">
+          <div 
+            onClick={() => setSearchParams(new URLSearchParams())}
+            className="w-16 h-20 bg-indigo-500 rounded-3xl flex flex-col items-center justify-center text-white shadow-lg shadow-indigo-500/40 cursor-pointer transition-transform hover:-translate-y-1 active:scale-95"
+          >
+            <Package size={20} className="mb-1" />
+            <span className="text-[10px] font-bold tracking-wider">BASE</span>
+          </div>
+          <div 
+            onClick={() => updateParams({ status: 'Em Trânsito', page: '1' })}
+            className={`w-16 h-20 rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-transform hover:-translate-y-1 active:scale-95 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ${statusFilter === 'Em Trânsito' ? 'bg-indigo-50 text-indigo-500 border border-indigo-100' : 'bg-white text-slate-400 hover:text-indigo-500'}`}
+          >
+            <Truck size={20} className="mb-1" />
+            <span className="text-[10px] font-bold tracking-wider">TRÂNSITO</span>
+          </div>
+          <div 
+            onClick={() => document.getElementById('search-input')?.focus()}
+            className="w-16 h-20 bg-white rounded-3xl flex flex-col items-center justify-center text-slate-400 shadow-[0_8px_30px_rgb(0,0,0,0.04)] cursor-pointer transition-transform hover:-translate-y-1 active:scale-95 hover:text-indigo-500"
+          >
+            <Search size={20} className="mb-1" />
+            <span className="text-[10px] font-bold tracking-wider">BUSCA</span>
+          </div>
         </div>
-        <button 
-          onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-        >
-          <Download size={16} />
-          Exportar Relatório (CSV)
-        </button>
-      </div>
+      </aside>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-card border rounded-xl p-6 shadow-sm flex items-center gap-4">
-          <div className="p-4 bg-blue-100 text-blue-700 dark:bg-blue-900/40 rounded-lg">
-            <Package size={24} />
+      {/* Main Content */}
+      <div className="flex-1 space-y-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="bg-white px-6 py-2.5 rounded-full shadow-[0_4px_20px_rgb(0,0,0,0.03)] flex items-center gap-2">
+            <span className="text-sm font-bold text-slate-700 tracking-wide">PAINEL</span>
+            <div className="w-4 h-4 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500">
+              <span className="text-[10px]">👁</span>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Total de Remessas</p>
-            <h3 className="text-2xl font-bold">{stats?.totalShipments?.toLocaleString('pt-BR') || '...'}</h3>
-          </div>
+          <button 
+            onClick={handleExport}
+            className="flex items-center gap-2 px-6 py-2.5 bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-100 transition-colors shadow-sm font-semibold text-sm"
+          >
+            <Download size={16} />
+            Exportar CSV
+          </button>
         </div>
-        <div className="bg-card border rounded-xl p-6 shadow-sm flex items-center gap-4">
-          <div className="p-4 bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 rounded-lg">
-            <Truck size={24} />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-[32px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col gap-4 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-rose-100 to-orange-100 rounded-bl-full opacity-50 -z-10"></div>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Total de Remessas</p>
+              <div className="p-2 bg-rose-50 text-rose-500 rounded-2xl">
+                <Package size={20} />
+              </div>
+            </div>
+            <h3 className="text-4xl font-black text-slate-800">{stats?.totalShipments?.toLocaleString('pt-BR') || '...'}</h3>
           </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Em Trânsito</p>
-            <h3 className="text-2xl font-bold">{stats?.inTransitCount?.toLocaleString('pt-BR') || '...'}</h3>
+
+          <div className="bg-gradient-to-br from-indigo-400 to-purple-500 rounded-[32px] p-6 shadow-lg shadow-indigo-500/30 flex flex-col gap-4 text-white">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-bold text-indigo-100 uppercase tracking-wider">Em Trânsito</p>
+              <div className="p-2 bg-white/20 rounded-2xl backdrop-blur-sm">
+                <Truck size={20} />
+              </div>
+            </div>
+            <h3 className="text-4xl font-black">{stats?.inTransitCount?.toLocaleString('pt-BR') || '...'}</h3>
+            <div className="flex gap-4 mt-auto text-indigo-100 text-sm font-medium">
+              <span>{Math.round(((stats?.inTransitCount || 0) / (stats?.totalShipments || 1)) * 100)}% ativos</span>
+            </div>
           </div>
-        </div>
-        <div className="bg-card border rounded-xl p-6 shadow-sm flex items-center gap-4">
-          <div className="p-4 bg-green-100 text-green-700 dark:bg-green-900/40 rounded-lg">
-            <CheckCircle size={24} />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Valor Total Entregue</p>
-            <h3 className="text-2xl font-bold">
+
+          <div className="bg-white rounded-[32px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Valor Total</p>
+              <div className="p-2 bg-emerald-50 text-emerald-500 rounded-2xl">
+                <CheckCircle size={20} />
+              </div>
+            </div>
+            <h3 className="text-3xl font-black text-slate-800">
               {stats?.totalValue 
-                ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(stats.totalValue)
+                ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(stats.totalValue)
                 : '...'}
             </h3>
           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-card border rounded-xl p-6 shadow-sm lg:col-span-2">
-          <h3 className="text-lg font-semibold mb-4">Volume por Status</h3>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '8px', border: '1px solid var(--border)' }}
-                  cursor={{ fill: 'var(--muted)' }}
-                />
-                <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        
-        <div className="bg-card border rounded-xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold mb-4">Distribuição</h3>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={5}
-                  dataKey="value"
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full sm:w-[400px] group">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+              <input
+                id="search-input"
+                type="text"
+                placeholder="Buscar por ID, rastreio, origem..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="w-full pl-12 pr-6 py-3.5 bg-white rounded-full shadow-[0_4px_20px_rgb(0,0,0,0.03)] border-none focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-600 font-medium placeholder:text-slate-400 transition-all"
+              />
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <div className="relative w-full sm:w-56 group">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors pointer-events-none">
+                  <Filter size={18} />
+                </div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => updateParams({ status: e.target.value, page: '1' })}
+                  className="w-full pl-12 pr-10 py-3.5 bg-white rounded-full shadow-[0_4px_20px_rgb(0,0,0,0.03)] border-none focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-600 font-bold transition-all appearance-none cursor-pointer"
                 >
-                  {chartData?.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex flex-wrap justify-center gap-4 mt-2">
-            {chartData?.map((entry, index) => (
-              <div key={entry.name} className="flex items-center gap-2 text-sm">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                <span>{entry.name}</span>
+                  <option value="Todos">Todos os Status</option>
+                  <option value="Pendente">Pendente</option>
+                  <option value="Em Trânsito">Em Trânsito</option>
+                  <option value="Entregue">Entregue</option>
+                  <option value="Cancelado">Cancelado</option>
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-slate-600 transition-colors">
+                  <ChevronDown size={16} />
+                </div>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4 items-center bg-card p-4 rounded-xl border shadow-sm">
-          <div className="relative w-full sm:w-[400px] group">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={18} />
-            <input
-              type="text"
-              placeholder="Buscar por ID, rastreio, origem..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 border border-muted-foreground/20 rounded-lg bg-background/50 hover:bg-background focus:bg-background hover:border-muted-foreground/40 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all shadow-sm"
+          <div className="h-[600px] bg-white rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-2">
+            <DataTable
+              data={data?.data || []}
+              totalCount={data?.totalCount || 0}
+              totalPages={data?.totalPages || 0}
+              currentPage={page}
+              pageSize={pageSize}
+              isLoading={isLoading || isFetching}
+              onPageChange={(p) => updateParams({ page: p.toString() })}
+              onPageSizeChange={(size) => updateParams({ pageSize: size.toString(), page: '1' })}
+              sortField={sortField}
+              sortOrder={sortOrder}
+              onSort={handleSort}
             />
           </div>
-          
-          <div className="relative w-full sm:w-56 group">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
-              <Filter size={18} />
-            </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => updateParams({ status: e.target.value, page: '1' })}
-              className="w-full pl-11 pr-10 py-2.5 border border-muted-foreground/20 rounded-lg bg-background/50 hover:bg-background focus:bg-background hover:border-muted-foreground/40 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer shadow-sm font-medium"
-            >
-              <option value="Todos">Todos os Status</option>
-              <option value="Pendente">Pendente</option>
-              <option value="Em Trânsito">Em Trânsito</option>
-              <option value="Entregue">Entregue</option>
-              <option value="Cancelado">Cancelado</option>
-            </select>
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground group-hover:text-foreground transition-colors">
-              <ChevronDown size={16} />
-            </div>
-          </div>
-        </div>
-
-        <div className="h-[600px]">
-          <DataTable
-            data={data?.data || []}
-            totalCount={data?.totalCount || 0}
-            totalPages={data?.totalPages || 0}
-            currentPage={page}
-            pageSize={pageSize}
-            isLoading={isLoading || isFetching}
-            onPageChange={(p) => updateParams({ page: p.toString() })}
-            onPageSizeChange={(size) => updateParams({ pageSize: size.toString(), page: '1' })}
-            sortField={sortField}
-            sortOrder={sortOrder}
-            onSort={handleSort}
-          />
         </div>
       </div>
     </div>

@@ -57,24 +57,24 @@ export function DataTable({
 
   const columns: { label: string; field: keyof Shipment; align?: 'right' }[] = [
     { label: 'ID', field: 'id' },
-    { label: 'Tracking', field: 'trackingNumber' },
+    { label: 'Rastreio', field: 'trackingNumber' },
     { label: 'Status', field: 'status' },
     { label: 'Origem', field: 'origin' },
     { label: 'Destino', field: 'destination' },
     { label: 'Valor', field: 'value', align: 'right' },
   ];
 
-  const gridColsClass = "grid grid-cols-[110px_160px_140px_minmax(200px,1fr)_minmax(200px,1fr)_140px] w-full";
+  const gridColsClass = "grid grid-cols-[140px_160px_140px_minmax(200px,1fr)_minmax(200px,1fr)_140px] w-full";
 
   return (
-    <div className="flex flex-col h-full bg-card text-card-foreground border rounded-xl shadow-sm overflow-hidden">
+    <div className="flex flex-col h-full bg-transparent overflow-hidden">
       <div 
         ref={parentRef} 
         className="flex-1 overflow-auto relative custom-scrollbar"
         style={{ minHeight: '400px' }}
       >
         <table className="w-full text-sm text-left block">
-          <thead className="text-xs text-muted-foreground uppercase bg-muted/40 sticky top-0 z-20 block w-full border-b shadow-sm backdrop-blur-sm">
+          <thead className="text-[11px] text-slate-400 font-bold uppercase sticky top-0 z-20 block w-full bg-white/90 backdrop-blur-md border-b border-slate-100">
             <tr className={gridColsClass}>
               {columns.map((col) => (
                 <th key={col.field} className="px-5 py-4 font-semibold tracking-wider">
@@ -121,26 +121,26 @@ export function DataTable({
                 return (
                   <tr
                     key={shipment.id}
-                    className={`${gridColsClass} items-center absolute border-b border-border/50 transition-all hover:bg-muted/30 group`}
+                    className={`${gridColsClass} items-center absolute border-b border-slate-50 transition-all hover:bg-slate-50/80 group rounded-2xl hover:scale-[0.995] hover:shadow-sm bg-white`}
                     style={{
                       height: `${virtualRow.size}px`,
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                   >
-                    <td className="px-5 py-3 font-semibold text-foreground/90">{shipment.id}</td>
-                    <td className="px-5 py-3 text-muted-foreground group-hover:text-foreground/80 transition-colors font-medium tracking-wide">{shipment.trackingNumber}</td>
+                    <td className="px-5 py-3 font-bold text-indigo-500 underline underline-offset-4 decoration-indigo-100 cursor-pointer hover:text-indigo-600">{shipment.id}</td>
+                    <td className="px-5 py-3 text-slate-400 group-hover:text-slate-600 transition-colors font-medium tracking-wide text-sm">{shipment.trackingNumber}</td>
                     <td className="px-5 py-3">
                       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold shadow-sm border uppercase tracking-wider ${
-                        shipment.status === 'Entregue' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' :
-                        shipment.status === 'Em Trânsito' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20' :
-                        shipment.status === 'Cancelado' ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20' :
-                        'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+                        shipment.status === 'Entregue' ? 'bg-emerald-50 text-emerald-500 border-emerald-100' :
+                        shipment.status === 'Em Trânsito' ? 'bg-blue-50 text-blue-500 border-blue-100' :
+                        shipment.status === 'Cancelado' ? 'bg-rose-50 text-rose-500 border-rose-100' :
+                        'bg-orange-50 text-orange-500 border-orange-100'
                       }`}>
                         {shipment.status}
                       </span>
                     </td>
-                    <td className="px-5 py-3 truncate text-foreground/80">{shipment.origin}</td>
-                    <td className="px-5 py-3 truncate text-foreground/80">{shipment.destination}</td>
+                    <td className="px-5 py-3 truncate text-slate-600 font-medium text-sm">{shipment.origin}</td>
+                    <td className="px-5 py-3 truncate text-slate-600 font-medium text-sm">{shipment.destination}</td>
                     <td className="px-5 py-3 text-right font-medium">
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(shipment.value)}
                     </td>
@@ -152,7 +152,7 @@ export function DataTable({
         </table>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 bg-muted/10 border-t gap-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 bg-transparent border-t border-slate-100 gap-4 mt-auto">
         <div className="flex items-center gap-4">
           <div className="text-sm text-muted-foreground hidden sm:block">
             Mostrando <span className="font-semibold text-foreground">{totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1}</span> até{' '}
@@ -165,7 +165,7 @@ export function DataTable({
               <select
                 value={pageSize}
                 onChange={(e) => onPageSizeChange(Number(e.target.value))}
-                className="appearance-none bg-background border border-muted-foreground/20 rounded-md pl-3 pr-8 py-1.5 text-sm font-medium hover:border-muted-foreground/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all cursor-pointer shadow-sm"
+                className="appearance-none bg-white border-none rounded-full pl-4 pr-8 py-2 text-sm font-bold text-slate-600 shadow-[0_4px_15px_rgb(0,0,0,0.04)] focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all cursor-pointer"
               >
                 {[20, 50, 100, 200, 500].map(size => (
                   <option key={size} value={size}>{size}</option>
@@ -182,7 +182,7 @@ export function DataTable({
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1 || isLoading}
-            className="p-2.5 rounded-lg border bg-background hover:bg-muted hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="p-3 rounded-full bg-white text-indigo-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_4px_15px_rgb(0,0,0,0.04)]"
           >
             <ChevronLeft size={16} />
           </button>
@@ -192,7 +192,7 @@ export function DataTable({
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages || isLoading}
-            className="p-2.5 rounded-lg border bg-background hover:bg-muted hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="p-3 rounded-full bg-white text-indigo-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_4px_15px_rgb(0,0,0,0.04)]"
           >
             <ChevronRight size={16} />
           </button>
