@@ -36,7 +36,6 @@ function App() {
                 <span className="font-semibold text-indigo-500 text-sm cursor-pointer hover:text-indigo-600 transition-colors underline underline-offset-4 decoration-indigo-200">João Silva</span>
               </div>
               <button 
-                onClick={() => alert('Você não tem novas notificações no momento.')}
                 onClick={() => setIsNotificationsOpen(true)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-full shadow-[0_4px_20px_rgb(0,0,0,0.03)] text-sm font-medium text-slate-600 hover:text-indigo-500 active:scale-95 transition-all cursor-pointer"
               >
