@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { Shipment } from '../api/mockData';
 import { ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ChevronDown } from 'lucide-react';
@@ -31,6 +32,7 @@ export function DataTable({
   onSort,
 }: DataTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const rowVirtualizer = useVirtualizer({
     count: data.length,
@@ -121,14 +123,15 @@ export function DataTable({
                 return (
                   <tr
                     key={shipment.id}
-                    className={`${gridColsClass} items-center absolute border-b border-slate-50 transition-all hover:bg-slate-50/80 group rounded-2xl hover:scale-[0.995] hover:shadow-sm bg-white`}
+                    onClick={() => navigate(`/rastreio/${shipment.id}`)}
+                    className={`${gridColsClass} items-center absolute border-b border-slate-50 transition-all hover:bg-slate-50/80 group rounded-2xl hover:scale-[0.995] hover:shadow-sm bg-white cursor-pointer`}
                     style={{
                       height: `${virtualRow.size}px`,
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                   >
                     <td className="px-5 py-3 font-bold text-indigo-500 underline underline-offset-4 decoration-indigo-100 cursor-pointer hover:text-indigo-600">{shipment.id}</td>
-                    <td className="px-5 py-3 text-slate-400 group-hover:text-slate-600 transition-colors font-medium tracking-wide text-sm">{shipment.trackingNumber}</td>
+                    <td className="px-5 py-3 text-slate-400 group-hover:text-indigo-500 transition-colors font-medium tracking-wide text-sm">{shipment.trackingNumber}</td>
                     <td className="px-5 py-3">
                       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold shadow-sm border uppercase tracking-wider ${
                         shipment.status === 'Entregue' ? 'bg-emerald-50 text-emerald-500 border-emerald-100' :
